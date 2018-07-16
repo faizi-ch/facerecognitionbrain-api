@@ -56,7 +56,8 @@ app.post('/signin', (req, res) => {
     });
 
     if (req.body.email == database.users[1].email && req.body.password == database.users[1].password)
-        res.json("success...signing in");
+        //res.json("success...signing in");
+        res.json(database.users[1]);
     else
         res.status(400).json('error signing in');
 })
@@ -74,7 +75,6 @@ app.post('/signup', (req, res) => {
         id: '45',
         name: name,
         email: email,
-        password: password,
         entries: 0,
         joined: new Date()
     })
