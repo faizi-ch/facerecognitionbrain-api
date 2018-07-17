@@ -1,7 +1,9 @@
-
 const handleSignUp = (req, res, db, bcrypt, app, bodyParser) => {
     app.use(bodyParser.json());
     const { name, email, password } = req.body;
+    if (!name || !email || !password) {
+        return res.status(400).json("Incorrect form submission!");
+    }
     const saltRounds = 10;
     const hash = bcrypt.hashSync(password, saltRounds);
     // Storing hash in password DB.

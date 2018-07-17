@@ -23,8 +23,6 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
-const saltRounds = 10;
-
 app.listen(3000, (req, res) => {
     console.log("running");
 })
@@ -40,6 +38,7 @@ app.post('/signup', (req, res) => signup.handleSignUp(req, res, db, bcrypt, app,
 app.get('/profile/:id', (req, res) => profile.handleProfileGet(req, res, db));
 
 app.put('/image', (req, res) => image.handleImage(req, res, db));
+app.post('/imageurl', (req, res) => image.handleApiCall(req, res));
 
 
 
