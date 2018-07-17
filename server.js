@@ -2,6 +2,21 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
+var knex = require('knex');
+
+
+const db = knex({
+    client: 'pg',
+    connection: {
+        host: '127.0.0.1',
+        user: 'postgres',
+        password: '4444',
+        database: 'face-recognition-brain'
+    }
+});
+
+db.select().table('users').then(d => console.log(d)
+);
 
 const app = express();
 
@@ -71,46 +86,38 @@ app.post('/signup', (req, res) => {
 
     });
 
-    database.users.push({
-        id: '45',
-        name: name,
+    db('users').insert({
         email: email,
-        entries: 0,
+        name: name,
         joined: new Date()
     })
-
-    res.json(database.users[database.users.length - 1]);
+        .returning('*')
+        .then(user => {
+            res.json(user[0]);
+        })
+        .catch(err => res.status(400).json('User already exists!'));
 })
 
 app.get('/profile/:id', (req, res) => {
     const { id } = req.params;
-    let found = false;
-    database.users.forEach(user => {
-        if (user.id === id) {
-            found = true;
-            return res.json(user);
-        }
 
-    })
-    if (!found) {
-        res.status(404).json('no such user');
-    }
+    db.select('*').from('users').where({ id })
+        .then(user => {
+            if (user.length)
+                res.json(user[0]);
+            else
+                res.status(400).json('User not found!');
+        })
+        .catch(err => res.status(400).json('Error getting user!'));
 })
 
 app.put('/image', (req, res) => {
     const { id } = req.body;
-    let found = false;
-    database.users.forEach(user => {
-        if (user.id === id) {
-            found = true;
-            user.entries++;
-            return res.json(user.entries);
-        }
-
-    })
-    if (!found) {
-        res.status(404).json('no such user');
-    }
+    db('users').where('id', '=', id)
+        .increment('entries', 1)
+        .returning('entries')
+        .then(entries => res.json(entries[0]))
+        .catch(err => res.status(404).json('Error!'));
 })
 
 
